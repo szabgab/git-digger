@@ -178,5 +178,10 @@ mod tests {
 
         let repo = Repo::from_url("https://gitlab.com/Szabgab/Rust-digger/");
         assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
+
+
+        let repo = Repo::from_url("https://blabla.com/");
+        assert_eq!(repo, Repo::new("", "", ""));
+
     }
 }
