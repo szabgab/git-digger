@@ -8,9 +8,37 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 const URL_REGEXES: [&str; 2] = [
-    "^https://(github).com/([^/]+)/([^/]+)/?.*$",
-    "^https://(gitlab).com/([^/]+)/([^/]+)/?.*$",
+    "^https://(github.com)/([^/]+)/([^/]+)/?.*$",
+    "^https://(gitlab.com)/([^/]+)/([^/]+)/?.*$",
 ];
+
+#[derive(Debug, PartialEq)]
+#[allow(dead_code)]
+struct Repo {
+    host: String,
+    owner: String,
+    repo: String,
+}
+
+#[allow(dead_code)]
+impl Repo {
+    fn new(host: &str, owner: &str, repo: &str) -> Self {
+        Self {
+            host: host.to_string(),
+            owner: owner.to_string(),
+            repo: repo.to_string(),
+        }
+    }
+
+    fn from_url(url: &str) -> Self {
+        let (host, owner, repo) = get_owner_and_repo(url);
+        Self { host, owner, repo }
+    }
+
+    fn url(&self) -> String {
+        format!("https://{}/{}/{}", self.host, self.owner, self.repo)
+    }
+}
 
 /// Extracts the owner and repository name from a URL.
 ///
@@ -124,47 +152,33 @@ mod tests {
 
     #[test]
     fn test_get_owner_and_repo() {
-        assert_eq!(
-            get_owner_and_repo("https://github.com/szabgab/rust-digger"),
-            (
-                "github".to_string(),
-                "szabgab".to_string(),
-                "rust-digger".to_string()
-            )
+        let expected = Repo::new("github.com", "szabgab", "rust-digger");
+
+        let repo = Repo::from_url("https://github.com/szabgab/rust-digger");
+        assert_eq!(repo, expected);
+        assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+
+        let repo = Repo::from_url("https://github.com/szabgab/rust-digger/");
+        assert_eq!(repo, expected);
+        assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+
+        let repo = Repo::from_url(
+            "https://github.com/crypto-crawler/crypto-crawler-rs/tree/main/crypto-market-type",
         );
         assert_eq!(
-            get_owner_and_repo("https://github.com/szabgab/rust-digger/"),
-            (
-                "github".to_string(),
-                "szabgab".to_string(),
-                "rust-digger".to_string()
-            )
+            repo,
+            Repo::new("github.com", "crypto-crawler", "crypto-crawler-rs",)
         );
         assert_eq!(
-            get_owner_and_repo(
-                "https://github.com/crypto-crawler/crypto-crawler-rs/tree/main/crypto-market-type"
-            ),
-            (
-                "github".to_string(),
-                "crypto-crawler".to_string(),
-                "crypto-crawler-rs".to_string()
-            )
+            repo.url(),
+            "https://github.com/crypto-crawler/crypto-crawler-rs"
         );
-        assert_eq!(
-            get_owner_and_repo("https://gitlab.com/szabgab/rust-digger"),
-            (
-                "gitlab".to_string(),
-                "szabgab".to_string(),
-                "rust-digger".to_string()
-            )
-        );
-        assert_eq!(
-            get_owner_and_repo("https://gitlab.com/Szabgab/Rust-digger/"),
-            (
-                "gitlab".to_string(),
-                "szabgab".to_string(),
-                "rust-digger".to_string()
-            )
-        );
+
+        let repo = Repo::from_url("https://gitlab.com/szabgab/rust-digger");
+        assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
+        assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
+
+        let repo = Repo::from_url("https://gitlab.com/Szabgab/Rust-digger/");
+        assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
     }
 }
