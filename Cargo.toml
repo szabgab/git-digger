@@ -2,6 +2,12 @@
 name = "git-digger"
 version = "0.1.0"
 edition = "2024"
+license = "MIT OR Apache-2.0"
+description = "Helper library to handle multiple git repositories"
+keywords = ["web"]
+categories = ["web-programming::http-server"]
+readme = "README.md"
+repository = "https://github.com/szabgab/git-digger/"
 
 [dependencies]
 log = "0.4"
