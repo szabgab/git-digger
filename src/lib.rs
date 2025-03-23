@@ -14,14 +14,14 @@ const URL_REGEXES: [&str; 2] = [
 
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
-struct Repo {
+struct Repository {
     host: String,
     owner: String,
     repo: String,
 }
 
 #[allow(dead_code)]
-impl Repo {
+impl Repository {
     fn new(host: &str, owner: &str, repo: &str) -> Self {
         Self {
             host: host.to_string(),
@@ -32,7 +32,7 @@ impl Repo {
 
     /// Extracts the owner and repository name from a URL.
     ///
-    /// Returns Repo
+    /// Returns Repository
     ///
     /// Where host is either "github" or "gitlab" for now.
     ///
@@ -145,37 +145,37 @@ mod tests {
 
     #[test]
     fn test_get_owner_and_repo() {
-        let expected = Repo::new("github.com", "szabgab", "rust-digger");
+        let expected = Repository::new("github.com", "szabgab", "rust-digger");
 
-        let repo = Repo::from_url("https://github.com/szabgab/rust-digger").unwrap();
+        let repo = Repository::from_url("https://github.com/szabgab/rust-digger").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
-        let repo = Repo::from_url("https://github.com/szabgab/rust-digger/").unwrap();
+        let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
-        let repo = Repo::from_url(
+        let repo = Repository::from_url(
             "https://github.com/crypto-crawler/crypto-crawler-rs/tree/main/crypto-market-type",
         )
         .unwrap();
         assert_eq!(
             repo,
-            Repo::new("github.com", "crypto-crawler", "crypto-crawler-rs",)
+            Repository::new("github.com", "crypto-crawler", "crypto-crawler-rs",)
         );
         assert_eq!(
             repo.url(),
             "https://github.com/crypto-crawler/crypto-crawler-rs"
         );
 
-        let repo = Repo::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
-        assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
+        let repo = Repository::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
+        assert_eq!(repo, Repository::new("gitlab.com", "szabgab", "rust-digger"));
         assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
 
-        let repo = Repo::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
-        assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
+        let repo = Repository::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
+        assert_eq!(repo, Repository::new("gitlab.com", "szabgab", "rust-digger"));
 
-        let res = Repo::from_url("https://blabla.com/");
+        let res = Repository::from_url("https://blabla.com/");
         assert!(res.is_err());
         assert_eq!(
             res.unwrap_err().to_string(),
