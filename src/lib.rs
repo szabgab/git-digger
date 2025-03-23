@@ -37,7 +37,7 @@ impl Repo {
     /// Where host is either "github" or "gitlab" for now.
     ///
     /// e.g. https://github.com/szabgab/rust-digger -> ("github", "szabgab", "rust-digger")
-    fn from_url(url: &str) -> Self {
+    fn from_url(url: &str) -> Result<Self, Box<dyn Error>> {
         static REGS: Lazy<Vec<Regex>> = Lazy::new(|| {
             URL_REGEXES
                 .iter()
@@ -50,15 +50,10 @@ impl Repo {
                 let host = repo_url[1].to_lowercase();
                 let owner = repo_url[2].to_lowercase();
                 let repo = repo_url[3].to_lowercase();
-                return Self { host, owner, repo };
+                return Ok(Self { host, owner, repo });
             }
         }
-
-        log::warn!("No match for repo in '{}'", &url);
-        let host = String::new();
-        let owner = String::new();
-        let repo = String::new();
-        Self { host, owner, repo }
+        Err(format!("No match for repo in '{}'", &url).into())
     }
 
     fn url(&self) -> String {
@@ -152,17 +147,18 @@ mod tests {
     fn test_get_owner_and_repo() {
         let expected = Repo::new("github.com", "szabgab", "rust-digger");
 
-        let repo = Repo::from_url("https://github.com/szabgab/rust-digger");
+        let repo = Repo::from_url("https://github.com/szabgab/rust-digger").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
-        let repo = Repo::from_url("https://github.com/szabgab/rust-digger/");
+        let repo = Repo::from_url("https://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
         let repo = Repo::from_url(
             "https://github.com/crypto-crawler/crypto-crawler-rs/tree/main/crypto-market-type",
-        );
+        )
+        .unwrap();
         assert_eq!(
             repo,
             Repo::new("github.com", "crypto-crawler", "crypto-crawler-rs",)
@@ -172,16 +168,18 @@ mod tests {
             "https://github.com/crypto-crawler/crypto-crawler-rs"
         );
 
-        let repo = Repo::from_url("https://gitlab.com/szabgab/rust-digger");
+        let repo = Repo::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
         assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
         assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
 
-        let repo = Repo::from_url("https://gitlab.com/Szabgab/Rust-digger/");
+        let repo = Repo::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
         assert_eq!(repo, Repo::new("gitlab.com", "szabgab", "rust-digger"));
 
-
-        let repo = Repo::from_url("https://blabla.com/");
-        assert_eq!(repo, Repo::new("", "", ""));
-
+        let res = Repo::from_url("https://blabla.com/");
+        assert!(res.is_err());
+        assert_eq!(
+            res.unwrap_err().to_string(),
+            "No match for repo in 'https://blabla.com/'"
+        );
     }
 }
