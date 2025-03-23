@@ -30,42 +30,40 @@ impl Repo {
         }
     }
 
+    /// Extracts the owner and repository name from a URL.
+    ///
+    /// Returns Repo
+    ///
+    /// Where host is either "github" or "gitlab" for now.
+    ///
+    /// e.g. https://github.com/szabgab/rust-digger -> ("github", "szabgab", "rust-digger")
     fn from_url(url: &str) -> Self {
-        let (host, owner, repo) = get_owner_and_repo(url);
+        static REGS: Lazy<Vec<Regex>> = Lazy::new(|| {
+            URL_REGEXES
+                .iter()
+                .map(|reg| Regex::new(reg).unwrap())
+                .collect::<Vec<Regex>>()
+        });
+
+        for re in REGS.iter() {
+            if let Some(repo_url) = re.captures(url) {
+                let host = repo_url[1].to_lowercase();
+                let owner = repo_url[2].to_lowercase();
+                let repo = repo_url[3].to_lowercase();
+                return Self { host, owner, repo };
+            }
+        }
+
+        log::warn!("No match for repo in '{}'", &url);
+        let host = String::new();
+        let owner = String::new();
+        let repo = String::new();
         Self { host, owner, repo }
     }
 
     fn url(&self) -> String {
         format!("https://{}/{}/{}", self.host, self.owner, self.repo)
     }
-}
-
-/// Extracts the owner and repository name from a URL.
-///
-/// Returns a tuple of (host, owner, repo).
-///
-/// Where host is either "github" or "gitlab" for now.
-///
-/// e.g. https://github.com/szabgab/rust-digger -> ("github", "szabgab", "rust-digger")
-pub fn get_owner_and_repo(repository: &str) -> (String, String, String) {
-    static REGS: Lazy<Vec<Regex>> = Lazy::new(|| {
-        URL_REGEXES
-            .iter()
-            .map(|reg| Regex::new(reg).unwrap())
-            .collect::<Vec<Regex>>()
-    });
-
-    for re in REGS.iter() {
-        if let Some(repo_url) = re.captures(repository) {
-            let host = repo_url[1].to_lowercase();
-            let owner = repo_url[2].to_lowercase();
-            let repo = repo_url[3].to_lowercase();
-            return (host, owner, repo);
-        }
-    }
-
-    log::warn!("No match for repo in '{}'", &repository);
-    (String::new(), String::new(), String::new())
 }
 
 /// Run `git clone` or `git pull` to update a single repository
