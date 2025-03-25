@@ -8,8 +8,8 @@ use once_cell::sync::Lazy;
 use regex::Regex;
 
 const URL_REGEXES: [&str; 2] = [
-    "^https://(github.com)/([^/]+)/([^/]+)/?.*$",
-    "^https://(gitlab.com)/([^/]+)/([^/]+)/?.*$",
+    "^https?://(github.com)/([^/]+)/([^/]+)/?.*$",
+    "^https?://(gitlab.com)/([^/]+)/([^/]+)/?.*$",
 ];
 
 #[derive(Debug, PartialEq)]
@@ -167,6 +167,10 @@ mod tests {
         );
 
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
+        assert_eq!(repo, expected);
+        assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+
+        let repo = Repository::from_url("http://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
