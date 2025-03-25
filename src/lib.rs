@@ -1,7 +1,7 @@
 use std::env;
 use std::error::Error;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 use once_cell::sync::Lazy;
@@ -14,10 +14,10 @@ const URL_REGEXES: [&str; 2] = [
 
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
-struct Repository {
-    host: String,
-    owner: String,
-    repo: String,
+pub struct Repository {
+    pub host: String,
+    pub owner: String,
+    pub repo: String,
 }
 
 #[allow(dead_code)]
@@ -37,7 +37,7 @@ impl Repository {
     /// Where host is either "github" or "gitlab" for now.
     ///
     /// e.g. https://github.com/szabgab/rust-digger -> ("github", "szabgab", "rust-digger")
-    fn from_url(url: &str) -> Result<Self, Box<dyn Error>> {
+    pub fn from_url(url: &str) -> Result<Self, Box<dyn Error>> {
         static REGS: Lazy<Vec<Regex>> = Lazy::new(|| {
             URL_REGEXES
                 .iter()
@@ -56,8 +56,12 @@ impl Repository {
         Err(format!("No match for repo in '{}'", &url).into())
     }
 
-    fn url(&self) -> String {
+    pub fn url(&self) -> String {
         format!("https://{}/{}/{}", self.host, self.owner, self.repo)
+    }
+
+    pub fn path(&self, root: &Path) -> PathBuf {
+        root.join(&self.host).join(&self.owner).join(&self.repo)
     }
 }
 
@@ -145,11 +149,16 @@ mod tests {
 
     #[test]
     fn test_get_owner_and_repo() {
+        let root = Path::new("/tmp");
         let expected = Repository::new("github.com", "szabgab", "rust-digger");
 
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+        assert_eq!(
+            repo.path(root).to_str(),
+            Some("/tmp/github.com/szabgab/rust-digger")
+        );
 
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
@@ -169,11 +178,17 @@ mod tests {
         );
 
         let repo = Repository::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
-        assert_eq!(repo, Repository::new("gitlab.com", "szabgab", "rust-digger"));
+        assert_eq!(
+            repo,
+            Repository::new("gitlab.com", "szabgab", "rust-digger")
+        );
         assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
 
         let repo = Repository::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
-        assert_eq!(repo, Repository::new("gitlab.com", "szabgab", "rust-digger"));
+        assert_eq!(
+            repo,
+            Repository::new("gitlab.com", "szabgab", "rust-digger")
+        );
 
         let res = Repository::from_url("https://blabla.com/");
         assert!(res.is_err());
