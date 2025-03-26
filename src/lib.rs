@@ -68,6 +68,7 @@ impl Repository {
         root.join(&self.host).join(&self.owner)
     }
 
+    //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
     pub fn update_repository(&self, root: &Path, clone: bool) -> Result<(), Box<dyn Error>> {
         let owner_path = self.owner_path(root);
@@ -90,15 +91,15 @@ impl Repository {
         } else {
             log::info!("new repo; cd to {:?}", &owner_path);
             env::set_current_dir(owner_path)?;
-            self.git_clone(root);
+            self.git_clone();
         }
         env::set_current_dir(current_dir)?;
         Ok(())
     }
 
     fn git_pull(&self) {
-        log::info!("git pull");
         let current_dir = env::current_dir().unwrap();
+        log::info!("git pull in {current_dir:?}");
 
         match Command::new("git").arg("pull").output() {
             Ok(result) => {
@@ -122,29 +123,25 @@ impl Repository {
         }
     }
 
-    fn git_clone(&self, root: &Path) {
+    fn git_clone(&self) {
+        let current_dir = env::current_dir().unwrap();
         let url = self.url();
-        let path = self.path(root);
-        log::info!("git clone {} {:?}", url, path);
-        match Command::new("git")
-            .arg("clone")
-            .arg(self.url())
-            .arg(&path)
-            .output()
-        {
+        log::info!("git clone {url} in {current_dir:?}");
+        match Command::new("git").arg("clone").arg(self.url()).output() {
             Ok(result) => {
                 if result.status.success() {
                     log::info!("git_clone exit code: '{}'", result.status);
                 } else {
                     log::warn!(
-                        "git_clone exit code: '{}' for url '{}' cloning to '{:?}'",
+                        "git_clone exit code: '{}' for url '{}' in '{current_dir:?}'",
                         result.status,
                         url,
-                        path
                     );
                 }
             }
-            Err(err) => log::error!("Could not run git_clone {url} {path:?} error: {err}"),
+            Err(err) => {
+                log::error!("Could not run `git clone {url}` in {current_dir:?} error: {err}")
+            }
         }
     }
 }
