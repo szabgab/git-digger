@@ -1,0 +1,36 @@
+name: CI
+
+on:
+    push:
+    pull_request:
+    workflow_dispatch:
+#    schedule:
+#        - cron: '0 * * * *'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update rust
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+            rustup update
+
+      - name: Compile application
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+            rustc --version
+            cargo --version
+            cargo build
+
+      - name: Run cargo fmt --check
+        run: cargo fmt --check
+
+      - name: Run clippy
+        run: cargo clippy -- --deny warnings
+
+      - name: Run tests
+        run: cargo test
+
