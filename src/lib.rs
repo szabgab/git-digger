@@ -15,9 +15,9 @@ const URL_REGEXES: [&str; 2] = [
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub struct Repository {
-    pub host: String,
-    pub owner: String,
-    pub repo: String,
+    host: String,
+    owner: String,
+    repo: String,
 }
 
 #[allow(dead_code)]
