@@ -155,6 +155,7 @@ mod tests {
         let root = Path::new("/tmp");
         let expected = Repository::new("github.com", "szabgab", "rust-digger");
 
+        // test https github.com, no slash at the end
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
@@ -163,14 +164,17 @@ mod tests {
             Some("/tmp/github.com/szabgab/rust-digger")
         );
 
+        // test http github.com trailing slash
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
+        // test http github.com trailing slash
         let repo = Repository::from_url("http://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
 
+        // test https github.com link to a file
         let repo = Repository::from_url(
             "https://github.com/crypto-crawler/crypto-crawler-rs/tree/main/crypto-market-type",
         )
@@ -184,6 +188,7 @@ mod tests {
             "https://github.com/crypto-crawler/crypto-crawler-rs"
         );
 
+        // test https gitlab.com
         let repo = Repository::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
         assert_eq!(
             repo,
@@ -191,12 +196,21 @@ mod tests {
         );
         assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
 
+        // test converting to lowercase  gitlab.com
         let repo = Repository::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
         assert_eq!(
             repo,
             Repository::new("gitlab.com", "szabgab", "rust-digger")
         );
+        assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
+        assert_eq!(repo.owner, "szabgab");
+        assert_eq!(repo.repo, "rust-digger");
+        assert_eq!(
+            repo.path(root).to_str(),
+            Some("/tmp/gitlab.com/szabgab/rust-digger")
+        );
 
+        // test incorrect URL
         let res = Repository::from_url("https://blabla.com/");
         assert!(res.is_err());
         assert_eq!(
