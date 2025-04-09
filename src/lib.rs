@@ -7,9 +7,10 @@ use std::process::Command;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-const URL_REGEXES: [&str; 2] = [
+const URL_REGEXES: [&str; 3] = [
     "^https?://(github.com)/([^/]+)/([^/]+)/?.*$",
     "^https?://(gitlab.com)/([^/]+)/([^/]+)/?.*$",
+    "^https?://(salsa.debian.org)/([^/]+)/([^/]+)/?.*$",
 ];
 
 #[derive(Debug, PartialEq)]
