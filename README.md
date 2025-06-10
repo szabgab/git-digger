@@ -9,3 +9,9 @@ One day it might become useful for others as well.
 ## Who uses it?
 
 * [mdbooks](https://mdbooks.code-maven.com/) - [source](https://github.com/szabgab/mdbooks.code-maven.com)
+
+
+## Release
+
+* Update the version number in Cargo.toml
+* `cargo build`
