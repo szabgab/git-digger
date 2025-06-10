@@ -6,3 +6,6 @@ Used by the [Public mdbooks](https://mdbooks.code-maven.com/) and the [rust-digg
 
 One day it might become useful for others as well.
 
+## Who uses it?
+
+* [mdbooks](https://mdbooks.code-maven.com/) - [source](https://github.com/szabgab/mdbooks.code-maven.com)
