@@ -11,7 +11,10 @@ One day it might become useful for others as well.
 * [mdbooks](https://mdbooks.code-maven.com/) - [source](https://github.com/szabgab/mdbooks.code-maven.com)
 
 
-## Release
+## Release process
 
 * Update the version number in Cargo.toml
 * `cargo build`
+* `git add .`
+* `git commit -m "update version number"`
+* `cargo publish`
