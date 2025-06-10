@@ -23,6 +23,7 @@ pub struct Repository {
 
 #[allow(dead_code)]
 impl Repository {
+    /// Represent a git repository in one of the git hosting providers
     fn new(host: &str, owner: &str, repo: &str) -> Self {
         Self {
             host: host.to_string(),
@@ -99,6 +100,11 @@ impl Repository {
     }
 
     fn git_pull(&self) {
+        if !self.check_url() {
+            log::error!("Repository URL is not reachable: {}", self.url());
+            return;
+        }
+
         let current_dir = env::current_dir().unwrap();
         log::info!("git pull in {current_dir:?}");
 
@@ -125,9 +131,16 @@ impl Repository {
     }
 
     fn git_clone(&self) {
+        if !self.check_url() {
+            log::error!("Repository URL is not reachable: {}", self.url());
+            return;
+        }
+
         let current_dir = env::current_dir().unwrap();
+
         let url = self.url();
         log::info!("git clone {url} in {current_dir:?}");
+
         match Command::new("git").arg("clone").arg(self.url()).output() {
             Ok(result) => {
                 if result.status.success() {
@@ -142,6 +155,17 @@ impl Repository {
             }
             Err(err) => {
                 log::error!("Could not run `git clone {url}` in {current_dir:?} error: {err}")
+            }
+        }
+    }
+
+    fn check_url(&self) -> bool {
+        let url = self.url();
+        match reqwest::blocking::get(&url) {
+            Ok(_) => true,
+            Err(err) => {
+                log::error!("Error checking URL '{}': {}", url, err);
+                false
             }
         }
     }
