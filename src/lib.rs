@@ -70,6 +70,14 @@ impl Repository {
         root.join(&self.host).join(&self.owner)
     }
 
+    pub fn is_github(&self) -> bool {
+        &self.host == "github.com"
+    }
+
+    pub fn is_gitlab(&self) -> bool {
+        ["gitlab.com", "salsa.debian.org"].contains(&self.host.as_str())
+    }
+
     //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
     pub fn update_repository(&self, root: &Path, clone: bool) -> Result<(), Box<dyn Error>> {
@@ -188,16 +196,20 @@ mod tests {
             repo.path(root).to_str(),
             Some("/tmp/github.com/szabgab/rust-digger")
         );
+        assert!(repo.is_github());
+        assert!(!repo.is_gitlab());
 
         // test http github.com trailing slash
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+        assert!(repo.is_github());
 
         // test http github.com trailing slash
         let repo = Repository::from_url("http://github.com/szabgab/rust-digger/").unwrap();
         assert_eq!(repo, expected);
         assert_eq!(repo.url(), "https://github.com/szabgab/rust-digger");
+        assert!(repo.is_github());
 
         // test https github.com link to a file
         let repo = Repository::from_url(
@@ -212,6 +224,7 @@ mod tests {
             repo.url(),
             "https://github.com/crypto-crawler/crypto-crawler-rs"
         );
+        assert!(repo.is_github());
 
         // test https gitlab.com
         let repo = Repository::from_url("https://gitlab.com/szabgab/rust-digger").unwrap();
@@ -220,6 +233,8 @@ mod tests {
             Repository::new("gitlab.com", "szabgab", "rust-digger")
         );
         assert_eq!(repo.url(), "https://gitlab.com/szabgab/rust-digger");
+        assert!(!repo.is_github());
+        assert!(repo.is_gitlab());
 
         // test converting to lowercase  gitlab.com
         let repo = Repository::from_url("https://gitlab.com/Szabgab/Rust-digger/").unwrap();
@@ -234,6 +249,22 @@ mod tests {
             repo.path(root).to_str(),
             Some("/tmp/gitlab.com/szabgab/rust-digger")
         );
+
+        // test salsa
+        let repo = Repository::from_url("https://salsa.debian.org/szabgab/rust-digger/").unwrap();
+        assert_eq!(
+            repo,
+            Repository::new("salsa.debian.org", "szabgab", "rust-digger")
+        );
+        assert_eq!(repo.url(), "https://salsa.debian.org/szabgab/rust-digger");
+        assert_eq!(repo.owner, "szabgab");
+        assert_eq!(repo.repo, "rust-digger");
+        assert_eq!(
+            repo.path(root).to_str(),
+            Some("/tmp/salsa.debian.org/szabgab/rust-digger")
+        );
+        assert!(!repo.is_github());
+        assert!(repo.is_gitlab());
 
         // test incorrect URL
         let res = Repository::from_url("https://blabla.com/");
