@@ -18,4 +18,5 @@ One day it might become useful for others as well.
 * `cargo build`
 * `git add .`
 * `git commit -m "update version number"`
+* `git push`
 * `cargo publish`
