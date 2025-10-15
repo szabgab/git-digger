@@ -169,7 +169,8 @@ impl Repository {
 
     fn check_url(&self) -> bool {
         let url = self.url();
-        match reqwest::blocking::get(&url) {
+        let response = ureq::get(&url).call();
+        match response {
             Ok(_) => true,
             Err(err) => {
                 log::error!("Error checking URL '{}': {}", url, err);
@@ -273,5 +274,17 @@ mod tests {
             res.unwrap_err().to_string(),
             "No match for repo in 'https://blabla.com/'"
         );
+    }
+
+    #[test]
+    fn test_check_good_url() {
+        let repo = Repository::from_url("https://github.com/szabgab/git-digger").unwrap();
+        assert!(repo.check_url());
+    }
+
+    #[test]
+    fn test_check_missing_url() {
+        let repo = Repository::from_url("https://github.com/szabgab/no-such-repo").unwrap();
+        assert!(!repo.check_url());
     }
 }
