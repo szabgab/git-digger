@@ -287,4 +287,26 @@ mod tests {
         let repo = Repository::from_url("https://github.com/szabgab/no-such-repo").unwrap();
         assert!(!repo.check_url());
     }
+
+    #[test]
+    fn test_clone_missing_repo() {
+        let temp_folder = tempfile::tempdir().unwrap();
+        let repo = Repository::from_url("https://github.com/szabgab/no-such-repo").unwrap();
+        repo.update_repository(Path::new(temp_folder.path()), true)
+            .unwrap();
+        let owner_path = temp_folder.path().join("github.com").join("szabgab");
+        assert!(owner_path.exists());
+        assert!(!owner_path.join("no-such-repo").exists());
+    }
+
+    #[test]
+    fn test_clone_this_repo() {
+        let temp_folder = tempfile::tempdir().unwrap();
+        let repo = Repository::from_url("https://github.com/szabgab/git-digger").unwrap();
+        repo.update_repository(Path::new(temp_folder.path()), true)
+            .unwrap();
+        let owner_path = temp_folder.path().join("github.com").join("szabgab");
+        assert!(owner_path.exists());
+        assert!(owner_path.join("git-digger").exists());
+    }
 }
