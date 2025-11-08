@@ -70,6 +70,10 @@ impl Repository {
         root.join(&self.host).join(&self.owner)
     }
 
+    pub fn get_owner(&self) -> &str {
+        &self.owner
+    }
+
     pub fn is_github(&self) -> bool {
         &self.host == "github.com"
     }
@@ -167,7 +171,7 @@ impl Repository {
         }
     }
 
-    fn check_url(&self) -> bool {
+    pub fn check_url(&self) -> bool {
         let url = self.url();
         let response = ureq::get(&url).call();
         match response {
@@ -199,6 +203,7 @@ mod tests {
         );
         assert!(repo.is_github());
         assert!(!repo.is_gitlab());
+        assert_eq!(repo.get_owner(), "szabgab");
 
         // test http github.com trailing slash
         let repo = Repository::from_url("https://github.com/szabgab/rust-digger/").unwrap();
