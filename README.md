@@ -2,6 +2,10 @@
 
 Helper library to deal with multiple repositories from multiple git hosting services.
 
+## Example
+
+See the [git-digger-example](https://github.com/szabgab/git-digger-example)
+
 
 ## Who uses it?
 
