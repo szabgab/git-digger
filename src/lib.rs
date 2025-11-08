@@ -24,7 +24,7 @@ pub struct Repository {
 #[allow(dead_code)]
 impl Repository {
     /// Represent a git repository in one of the git hosting providers
-    fn new(host: &str, owner: &str, repo: &str) -> Self {
+    pub fn new(host: &str, owner: &str, repo: &str) -> Self {
         Self {
             host: host.to_string(),
             owner: owner.to_string(),
