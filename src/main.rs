@@ -54,7 +54,7 @@ fn main() {
     let root = PathBuf::from(&args[2]);
     let clone = true;
     match Repository::from_url(repo_url) {
-        Ok(repo) => match repo.update_repository(root.as_path(), clone) {
+        Ok(repo) => match repo.update_repository(root.as_path(), clone, None) {
             Ok(_) => println!(
                 "Repository updated successfully in {:?}",
                 repo.path(root.as_path())

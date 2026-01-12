@@ -82,6 +82,42 @@ impl Repository {
         ["gitlab.com", "salsa.debian.org"].contains(&self.host.as_str())
     }
 
+    pub fn has_github_actions(&self, root: &Path) -> bool {
+        if !self.is_github() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let dot_github = path.join(".github");
+        if !dot_github.exists() {
+            return false;
+        }
+
+        let workflow_dir = dot_github.join("workflows");
+        if !workflow_dir.exists() {
+            return false;
+        }
+
+        if let Ok(entries) = workflow_dir.read_dir() {
+            let yaml_count = entries
+                .filter_map(|entry| entry.ok())
+                .filter(|entry| {
+                    entry
+                        .path()
+                        .extension()
+                        .and_then(|ext| ext.to_str())
+                        .map(|ext| ext == "yml" || ext == "yaml")
+                        .unwrap_or(false)
+                })
+                .count();
+            if yaml_count > 0 {
+                return true;
+            }
+        }
+
+        false
+    }
+
     //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
     pub fn update_repository(
@@ -307,7 +343,7 @@ mod tests {
     fn test_clone_missing_repo() {
         let temp_folder = tempfile::tempdir().unwrap();
         let repo = Repository::from_url("https://github.com/szabgab/no-such-repo").unwrap();
-        repo.update_repository(Path::new(temp_folder.path()), true)
+        repo.update_repository(Path::new(temp_folder.path()), true, None)
             .unwrap();
         let owner_path = temp_folder.path().join("github.com").join("szabgab");
         assert!(owner_path.exists());
@@ -318,7 +354,7 @@ mod tests {
     fn test_clone_this_repo() {
         let temp_folder = tempfile::tempdir().unwrap();
         let repo = Repository::from_url("https://github.com/szabgab/git-digger").unwrap();
-        repo.update_repository(Path::new(temp_folder.path()), true)
+        repo.update_repository(Path::new(temp_folder.path()), true, None)
             .unwrap();
         let owner_path = temp_folder.path().join("github.com").join("szabgab");
         assert!(owner_path.exists());
