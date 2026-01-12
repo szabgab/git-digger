@@ -134,6 +134,17 @@ impl Repository {
         dependabot_file.exists()
     }
 
+    pub fn has_gitlab_pipeline(&self, root: &Path) -> bool {
+        if !self.is_gitlab() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let ci_file = path.join(".gitlab-ci.yml");
+
+        ci_file.exists()
+    }
+
     //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
     pub fn update_repository(
