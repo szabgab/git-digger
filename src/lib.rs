@@ -105,7 +105,7 @@ impl Repository {
         } else {
             log::info!("new repo; cd to {:?}", &owner_path);
             env::set_current_dir(owner_path)?;
-            self.git_clone();
+            self.git_clone(None);
         }
         env::set_current_dir(current_dir)?;
         Ok(())
@@ -142,7 +142,7 @@ impl Repository {
         }
     }
 
-    fn git_clone(&self) {
+    fn git_clone(&self, depth: Option<usize>) {
         if !self.check_url() {
             log::error!("Repository URL is not reachable: {}", self.url());
             return;
@@ -153,7 +153,12 @@ impl Repository {
         let url = self.url();
         log::info!("git clone {url} in {current_dir:?}");
 
-        match Command::new("git").arg("clone").arg(self.url()).output() {
+        let mut cmd = Command::new("git");
+        cmd.arg("clone");
+        if let Some(depth) = depth {
+            cmd.arg(format!("--depth={depth}"));
+        }
+        match cmd.arg(self.url()).output() {
             Ok(result) => {
                 if result.status.success() {
                     log::info!("git_clone exit code: '{}'", result.status);
