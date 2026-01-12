@@ -84,7 +84,12 @@ impl Repository {
 
     //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
-    pub fn update_repository(&self, root: &Path, clone: bool) -> Result<(), Box<dyn Error>> {
+    pub fn update_repository(
+        &self,
+        root: &Path,
+        clone: bool,
+        depth: Option<usize>,
+    ) -> Result<(), Box<dyn Error>> {
         let owner_path = self.owner_path(root);
         let current_dir = env::current_dir()?;
         log::info!(
@@ -105,7 +110,7 @@ impl Repository {
         } else {
             log::info!("new repo; cd to {:?}", &owner_path);
             env::set_current_dir(owner_path)?;
-            self.git_clone(None);
+            self.git_clone(depth);
         }
         env::set_current_dir(current_dir)?;
         Ok(())
