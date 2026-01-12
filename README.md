@@ -22,9 +22,9 @@ One day it might become useful for others as well.
 * `cargo build`
 * `git add .`
 * `git commit -m "update version number"`
-* `git tag -a v0.2.1 -m v0.2.1`
-* `git push --tags`
+* `git tag -a v0.2.2 -m v0.2.1`
 * `git push`
+* `git push --tags`
 * `cargo publish`
 
 
