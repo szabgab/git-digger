@@ -97,6 +97,10 @@ impl Repository {
         ["gitlab.com", "salsa.debian.org"].contains(&self.host.as_str())
     }
 
+    pub fn is_bitbucket(&self) -> bool {
+        &self.host == "bitbucket.org"
+    }
+
     pub fn has_github_actions(&self, root: &Path) -> bool {
         if !self.is_github() {
             return false;
@@ -158,6 +162,64 @@ impl Repository {
         let ci_file = path.join(".gitlab-ci.yml");
 
         ci_file.exists()
+    }
+
+    pub fn has_bitbucket_pipeline(&self, root: &Path) -> bool {
+        if !self.is_bitbucket() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let ci_file = path.join("bitbucket-pipelines.yml");
+        ci_file.exists()
+    }
+
+    pub fn has_circle_ci(&self, root: &Path) -> bool {
+        if !self.is_github() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let ci_folder = path.join(".circleci");
+
+        ci_folder.exists()
+    }
+
+    pub fn has_cirrus_ci(&self, root: &Path) -> bool {
+        if !self.is_github() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let ci_folder = path.join(".cirrusci");
+
+        ci_folder.exists()
+    }
+
+    pub fn has_travis(&self, root: &Path) -> bool {
+        if !self.is_github() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let ci_file = path.join(".travis.yaml");
+
+        ci_file.exists()
+    }
+
+    pub fn has_jenkins(&self, root: &Path) -> bool {
+        let path = self.path(root);
+        let ci_file = path.join("Jenkinsfile");
+
+        ci_file.exists()
+    }
+
+    pub fn has_appveyor(&self, root: &Path) -> bool {
+        let path = self.path(root);
+        let ci_file_1 = path.join("appveyor.yml");
+        let ci_file_2 = path.join(".appveyor.yml");
+
+        ci_file_1.exists() || ci_file_2.exists()
     }
 
     //let _ = git2::Repository::clone(repo, temp_dir_str);
