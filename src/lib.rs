@@ -7,10 +7,12 @@ use std::process::Command;
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-const URL_REGEXES: [&str; 3] = [
+const URL_REGEXES: [&str; 5] = [
     "^https?://(github.com)/([^/]+)/([^/]+)/?.*$",
     "^https?://(gitlab.com)/([^/]+)/([^/]+)/?.*$",
     "^https?://(salsa.debian.org)/([^/]+)/([^/]+)/?.*$",
+    r"^https?://(bitbucket.org)/([^/]+)/([^/]+)/?.*$",
+    r"^https?://(codeberg.org)/([^/]+)/([^/]+)(/.*)?$",
 ];
 
 #[derive(Debug, PartialEq)]
@@ -351,6 +353,18 @@ mod tests {
         assert_eq!(
             res.unwrap_err().to_string(),
             "No match for repo in 'https://blabla.com/'"
+        );
+
+        let repo = Repository::from_url("https://bitbucket.org/szabgab/rust-digger/").unwrap();
+        assert_eq!(
+            repo,
+            Repository::new("bitbucket.org", "szabgab", "rust-digger")
+        );
+
+        let repo = Repository::from_url("https://codeberg.org/szabgab/rust-digger/").unwrap();
+        assert_eq!(
+            repo,
+            Repository::new("codeberg.org", "szabgab", "rust-digger")
         );
     }
 
