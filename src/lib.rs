@@ -118,6 +118,22 @@ impl Repository {
         false
     }
 
+    pub fn has_dependabot(&self, root: &Path) -> bool {
+        if !self.is_github() {
+            return false;
+        }
+
+        let path = self.path(root);
+        let dot_github = path.join(".github");
+
+        if !dot_github.exists() {
+            return false;
+        }
+
+        let dependabot_file = dot_github.join("dependabot.yml");
+        dependabot_file.exists()
+    }
+
     //let _ = git2::Repository::clone(repo, temp_dir_str);
     /// Run `git clone` or `git pull` to update a single repository
     pub fn update_repository(
