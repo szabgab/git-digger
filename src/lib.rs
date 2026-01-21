@@ -441,6 +441,12 @@ mod tests {
             repo,
             Repository::new("codeberg.org", "szabgab", "rust-digger")
         );
+
+        let repo = Repository::from_url("https://github.com/user_name/with_underscore").unwrap();
+        assert_eq!(
+            repo,
+            Repository::new("github.com", "user_name", "with_underscore")
+        );
     }
 
     #[test]
