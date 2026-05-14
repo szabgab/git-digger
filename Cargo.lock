@@ -215,7 +215,7 @@ dependencies = [
 
 [[package]]
 name = "git-digger"
-version = "0.2.2"
+version = "0.2.4"
 dependencies = [
  "env_logger",
  "log",
