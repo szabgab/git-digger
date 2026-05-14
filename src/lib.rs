@@ -279,6 +279,8 @@ impl Repository {
                         result.status,
                         current_dir
                     );
+                    log::warn!("stderr: {}", String::from_utf8_lossy(&result.stderr));
+                    log::warn!("stdout: {}", String::from_utf8_lossy(&result.stdout));
                 }
             }
             Err(err) => {
@@ -313,6 +315,8 @@ impl Repository {
                         result.status,
                         url,
                     );
+                    log::warn!("stderr: {}", String::from_utf8_lossy(&result.stderr));
+                    log::warn!("stdout: {}", String::from_utf8_lossy(&result.stdout));
                 }
             }
             Err(err) => {
