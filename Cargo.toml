@@ -10,10 +10,10 @@ readme = "README.md"
 repository = "https://github.com/szabgab/git-digger/"
 
 [dependencies]
-env_logger = "0.11.10"
+env_logger = "0.11.11"
 log = "0.4"
 once_cell = "1.21.4"
-regex = "1.12.3"
+regex = "1.12.4"
 serde = { version = "1.0.228", features = ["derive"] }
 ureq = "3.3.0"
 
